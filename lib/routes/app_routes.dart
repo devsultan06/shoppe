@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:first_app/home/home_screen.dart';
-import 'package:first_app/login/login_screen.dart';
-import 'package:first_app/profile/profile_screen.dart';
+import 'package:shoppe/home/home_screen.dart';
+import 'package:shoppe/login/login_screen.dart';
+import 'package:shoppe/profile/profile_screen.dart';
 
 class AppRoutes {
   static const String home = '/home';

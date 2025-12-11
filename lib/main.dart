@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:first_app/routes/app_routes.dart';
+import 'package:shoppe/routes/app_routes.dart';
 
 void main() {
   runApp(const MyApp());

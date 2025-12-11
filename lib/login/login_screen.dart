@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:first_app/routes/app_routes.dart'; // Import your routes
+import 'package:shoppe/routes/app_routes.dart'; // Import your routes
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
