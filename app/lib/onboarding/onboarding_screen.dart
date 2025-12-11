@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shoppe/routes/app_routes.dart';
 
 class OnboardingScreen extends StatelessWidget {
   const OnboardingScreen({super.key});
@@ -63,7 +64,7 @@ class OnboardingScreen extends StatelessWidget {
                 height: 61,
                 child: ElevatedButton(
                   onPressed: () {
-                    print("Let's get started button pressed!");
+                    Navigator.pushNamed(context, AppRoutes.createAccount);
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF004CFF),
@@ -92,7 +93,7 @@ class OnboardingScreen extends StatelessWidget {
                 height: 56,
                 child: TextButton(
                   onPressed: () {
-                    print("I already have an account button pressed!");
+                    Navigator.pushNamed(context, AppRoutes.login);
                   },
                   style: TextButton.styleFrom(
                     foregroundColor: const Color(0xFF2563EB),
