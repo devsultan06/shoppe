@@ -26,42 +26,43 @@ class _LoginScreenState extends State<LoginScreen> {
         children: [
           // Background bubbles
           Positioned(
-            top: -100,
-            left: -100,
-            child: Image.asset(
-              'assets/images/l1.png',
-              width: 300,
-              height: 400,
-              fit: BoxFit.contain,
-            ),
-          ),
-          Positioned(
             top: -50,
-            right: -80,
-            child: Image.asset(
-              'assets/images/l2.png',
-              width: 200,
-              height: 250,
-              fit: BoxFit.contain,
-            ),
-          ),
-          Positioned(
-            bottom: -50,
-            right: -60,
-            child: Image.asset(
-              'assets/images/l3.png',
-              width: 180,
-              height: 220,
-              fit: BoxFit.contain,
-            ),
-          ),
-          Positioned(
-            bottom: -30,
             left: -50,
             child: Image.asset(
+              'assets/images/l2.png',
+              width: 373,
+              height: 442,
+              fit: BoxFit.contain,
+            ),
+          ),
+          Positioned(
+            top: -120,
+            left: -120,
+            child: Image.asset(
+              'assets/images/l1.png',
+              width: 402,
+              height: 442,
+              fit: BoxFit.contain,
+            ),
+          ),
+
+          Positioned(
+            bottom: -100,
+            right: -70,
+            child: Image.asset(
+              'assets/images/l3.png',
+              width: 373,
+              height: 442,
+              fit: BoxFit.contain,
+            ),
+          ),
+          Positioned(
+            top: 250,
+            right: -30,
+            child: Image.asset(
               'assets/images/l4.png',
-              width: 150,
-              height: 180,
+              width: 137,
+              height: 151,
               fit: BoxFit.contain,
             ),
           ),
@@ -95,7 +96,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         'Good to see you back!',
                         style: GoogleFonts.raleway(
                           fontSize: 19,
-                          color: const Color(0xFF7A7A7A),
+                          color: const Color(0xFF202020),
                           fontWeight: FontWeight.w400,
                         ),
                       ),
