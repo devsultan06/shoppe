@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
+import 'package:shoppe/widgets/top-toast.dart';
 
 class CreateAccountScreen extends StatefulWidget {
   const CreateAccountScreen({super.key});
@@ -13,6 +16,9 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
   final _passwordController = TextEditingController();
   final _phoneController = TextEditingController();
   bool _isPasswordVisible = false;
+  bool _isLoading = false;
+  File? _selectedImage;
+  final ImagePicker _picker = ImagePicker();
 
   @override
   void dispose() {
@@ -20,6 +26,186 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
     _passwordController.dispose();
     _phoneController.dispose();
     super.dispose();
+  }
+
+  // Method to pick image from gallery or camera
+  Future<void> _pickImage() async {
+    try {
+      showModalBottomSheet(
+        context: context,
+        builder: (BuildContext context) {
+          return SafeArea(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ListTile(
+                  leading: const Icon(Icons.photo_library),
+                  title: const Text('Choose from Gallery'),
+                  onTap: () async {
+                    Navigator.pop(context);
+                    await _getImage(ImageSource.gallery);
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.camera_alt),
+                  title: const Text('Take a Photo'),
+                  onTap: () async {
+                    Navigator.pop(context);
+                    await _getImage(ImageSource.camera);
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.cancel),
+                  title: const Text('Cancel'),
+                  onTap: () {
+                    Navigator.pop(context);
+                  },
+                ),
+              ],
+            ),
+          );
+        },
+      );
+    } catch (e) {
+      TopToast.show(
+        context,
+        message: 'Error opening image picker: $e',
+        type: ToastType.error,
+      );
+    }
+  }
+
+  // Method to get image from selected source
+  Future<void> _getImage(ImageSource source) async {
+    try {
+      final XFile? pickedFile = await _picker.pickImage(
+        source: source,
+        maxWidth: 1000,
+        maxHeight: 1000,
+        imageQuality: 80,
+      );
+
+      if (pickedFile != null) {
+        setState(() {
+          _selectedImage = File(pickedFile.path);
+        });
+        TopToast.show(
+          context,
+          message: 'Profile photo selected successfully!',
+          type: ToastType.success,
+        );
+      }
+    } catch (e) {
+      TopToast.show(
+        context,
+        message: 'Error picking image: $e',
+        type: ToastType.error,
+      );
+    }
+  }
+
+  // Method to handle form submission
+  void _handleCreateAccount() async {
+    // Prevent multiple submissions
+    if (_isLoading) return;
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      // Get values from text controllers
+      String email = _emailController.text.trim();
+      String password = _passwordController.text.trim();
+      String phoneNumber = _phoneController.text.trim();
+
+      // Basic validation
+      if (email.isEmpty) {
+        TopToast.show(
+          context,
+          message: 'Please enter your email',
+          type: ToastType.error,
+        );
+        return;
+      }
+
+      if (password.isEmpty) {
+        TopToast.show(
+          context,
+          message: 'Please enter your password',
+          type: ToastType.error,
+        );
+        return;
+      }
+
+      if (phoneNumber.isEmpty) {
+        TopToast.show(
+          context,
+          message: 'Please enter your phone number',
+          type: ToastType.error,
+        );
+        return;
+      }
+
+      // Create user data object
+      Map<String, dynamic> userData = {
+        'email': email,
+        'password': password,
+        'phoneNumber': phoneNumber,
+        'profileImage': _selectedImage?.path, // Include the image path
+      };
+
+      // Print the data (you can replace this with your API call)
+      print('User Data to send to backend:');
+      print('Email: $email');
+      print('Password: $password');
+      print('Phone: $phoneNumber');
+      print('Profile Image: ${_selectedImage?.path ?? 'No image selected'}');
+      print('Full object: $userData');
+
+      // Send to backend
+      await _sendToBackend(userData);
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  // Method to send data to backend
+  Future<void> _sendToBackend(Map<String, dynamic> userData) async {
+    try {
+      // Simulate network delay
+      await Future.delayed(const Duration(seconds: 2));
+
+      // TODO: Replace with your actual API endpoint
+      // Example:
+      // final response = await http.post(
+      //   Uri.parse('https://your-api.com/auth/register'),
+      //   headers: {'Content-Type': 'application/json'},
+      //   body: jsonEncode(userData),
+      // );
+      //
+      // if (response.statusCode == 200) {
+      //   // Success - navigate to next screen
+      //   Navigator.pushNamed(context, AppRoutes.login);
+      // } else {
+      //   _showErrorMessage('Registration failed');
+      // }
+
+      // For now, just simulate success
+      TopToast.show(
+        context,
+        message: 'Account created successfully',
+        type: ToastType.success,
+      );
+    } catch (e) {
+      TopToast.show(
+        context,
+        message: 'Error creating account: $e',
+        type: ToastType.error,
+      );
+    }
   }
 
   @override
@@ -76,13 +262,39 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
                   // Profile photo upload section
                   GestureDetector(
                     onTap: () {
-                      print("Upload photo tapped!");
+                      _pickImage();
                     },
-                    child: Image.asset(
-                      'assets/images/upload.png',
-                      width: 90,
-                      height: 90,
-                      fit: BoxFit.contain,
+                    child: Container(
+                      width: 120,
+                      height: 120,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: _selectedImage != null
+                            ? Colors.transparent
+                            : const Color(0xFFF8F8F8),
+                        border: Border.all(
+                          color: const Color(0xFF004CFF),
+                          width: 2,
+                          style: BorderStyle.solid,
+                        ),
+                      ),
+                      child: _selectedImage != null
+                          ? ClipOval(
+                              child: Image.file(
+                                _selectedImage!,
+                                width: 120,
+                                height: 120,
+                                fit: BoxFit.cover,
+                              ),
+                            )
+                          : Center(
+                              child: Image.asset(
+                                'assets/images/upload.png',
+                                width: 90,
+                                height: 90,
+                                fit: BoxFit.contain,
+                              ),
+                            ),
                     ),
                   ),
 
@@ -263,25 +475,54 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
                   width: double.infinity,
                   height: 61,
                   child: ElevatedButton(
-                    onPressed: () {
-                      print("Done button pressed!");
-                    },
+                    onPressed: _isLoading
+                        ? null
+                        : () {
+                            _handleCreateAccount();
+                          },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF004CFF),
+                      backgroundColor: _isLoading
+                          ? const Color(0xFF9AA5B1)
+                          : const Color(0xFF004CFF),
                       foregroundColor: Colors.white,
                       elevation: 0,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
                       ),
                     ),
-                    child: Text(
-                      "Done",
-                      style: GoogleFonts.raleway(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w300,
-                        color: const Color(0xFFF3F3F3),
-                      ),
-                    ),
+                    child: _isLoading
+                        ? Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    Colors.white,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Text(
+                                "Creating Account...",
+                                style: GoogleFonts.raleway(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w300,
+                                  color: const Color(0xFFF3F3F3),
+                                ),
+                              ),
+                            ],
+                          )
+                        : Text(
+                            "Done",
+                            style: GoogleFonts.raleway(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w300,
+                              color: const Color(0xFFF3F3F3),
+                            ),
+                          ),
                   ),
                 ),
 

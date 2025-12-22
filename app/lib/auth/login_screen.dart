@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:shoppe/routes/app_routes.dart';
+import 'package:shoppe/widgets/top-toast.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -11,11 +11,91 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final _emailController = TextEditingController();
+  bool _isLoading = false;
 
   @override
   void dispose() {
     _emailController.dispose();
     super.dispose();
+  }
+
+  // Method to handle login
+  void _handleLogin() async {
+    // Prevent multiple submissions
+    if (_isLoading) return;
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      // Get value from email controller
+      String email = _emailController.text.trim();
+
+      // Basic validation
+      if (email.isEmpty) {
+        TopToast.show(
+          context,
+          message: 'Please enter your email',
+          type: ToastType.error,
+        );
+        return;
+      }
+
+      // Create login data object
+      Map<String, dynamic> loginData = {'email': email};
+
+      // Print the data (you can replace this with your API call)
+      print('Login Data to send to backend:');
+      print('Email: $email');
+      print('Full object: $loginData');
+
+      // Send to backend
+      await _sendLoginToBackend(loginData);
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  // Method to send login data to backend
+  Future<void> _sendLoginToBackend(Map<String, dynamic> loginData) async {
+    try {
+      // Simulate network delay
+      await Future.delayed(const Duration(seconds: 2));
+
+      // TODO: Replace with your actual API endpoint
+      // Example:
+      // final response = await http.post(
+      //   Uri.parse('https://your-api.com/auth/login'),
+      //   headers: {'Content-Type': 'application/json'},
+      //   body: jsonEncode(loginData),
+      // );
+      //
+      // if (response.statusCode == 200) {
+      //   // Success - navigate to home screen
+      //   Navigator.pushNamed(context, AppRoutes.home);
+      // } else {
+      //   _showErrorMessage('Login failed');
+      // }
+
+      // For now, just simulate success and navigate
+      TopToast.show(
+        context,
+        message: 'Login successful!',
+        type: ToastType.success,
+      );
+      Future.delayed(const Duration(seconds: 1), () {
+        Navigator.pushNamed(context, '/home'); // Update with your actual route
+      });
+    } catch (e) {
+      TopToast.show(
+        context,
+        message: 'Error during login: $e',
+        type: ToastType.error,
+      );
+    }
   }
 
   @override
@@ -164,26 +244,54 @@ class _LoginScreenState extends State<LoginScreen> {
                   width: double.infinity,
                   height: 61,
                   child: ElevatedButton(
-                    onPressed: () {
-                      // Navigate to Home screen
-                      Navigator.pushNamed(context, AppRoutes.home);
-                    },
+                    onPressed: _isLoading
+                        ? null
+                        : () {
+                            _handleLogin();
+                          },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF004CFF),
+                      backgroundColor: _isLoading
+                          ? const Color(0xFF9AA5B1)
+                          : const Color(0xFF004CFF),
                       foregroundColor: Colors.white,
                       elevation: 0,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
                       ),
                     ),
-                    child: Text(
-                      "Next",
-                      style: GoogleFonts.raleway(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w300,
-                        color: const Color(0xFFF3F3F3),
-                      ),
-                    ),
+                    child: _isLoading
+                        ? Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    Colors.white,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Text(
+                                "Logging in...",
+                                style: GoogleFonts.raleway(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w300,
+                                  color: const Color(0xFFF3F3F3),
+                                ),
+                              ),
+                            ],
+                          )
+                        : Text(
+                            "Next",
+                            style: GoogleFonts.raleway(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w300,
+                              color: const Color(0xFFF3F3F3),
+                            ),
+                          ),
                   ),
                 ),
 
