@@ -10,6 +10,7 @@ class TopToast {
     Duration duration = const Duration(seconds: 3),
   }) {
     final overlay = Overlay.of(context);
+    if (overlay == null) return;
 
     late OverlayEntry overlayEntry;
     bool isRemoved = false;
@@ -22,7 +23,7 @@ class TopToast {
     }
 
     overlayEntry = OverlayEntry(
-      builder: (context) {
+      builder: (_) {
         return _TopToastWidget(
           message: message,
           type: type,
@@ -32,12 +33,11 @@ class TopToast {
     );
 
     overlay.insert(overlayEntry);
-
     Future.delayed(duration, removeToast);
   }
 }
 
-class _TopToastWidget extends StatelessWidget {
+class _TopToastWidget extends StatefulWidget {
   final String message;
   final ToastType type;
   final VoidCallback onDismissed;
@@ -49,8 +49,29 @@ class _TopToastWidget extends StatelessWidget {
   });
 
   @override
+  State<_TopToastWidget> createState() => _TopToastWidgetState();
+}
+
+class _TopToastWidgetState extends State<_TopToastWidget> {
+  Offset _offset = const Offset(0, -1);
+  double _opacity = 0;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Trigger animation after first frame
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      setState(() {
+        _offset = const Offset(0, 0);
+        _opacity = 1;
+      });
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final isError = type == ToastType.error;
+    final isError = widget.type == ToastType.error;
 
     return Positioned(
       top: MediaQuery.of(context).padding.top + 12,
@@ -60,10 +81,11 @@ class _TopToastWidget extends StatelessWidget {
         color: Colors.transparent,
         child: AnimatedSlide(
           duration: const Duration(milliseconds: 300),
-          offset: const Offset(0, 0),
+          curve: Curves.easeOutCubic,
+          offset: _offset,
           child: AnimatedOpacity(
             duration: const Duration(milliseconds: 300),
-            opacity: 1,
+            opacity: _opacity,
             child: Container(
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
@@ -86,7 +108,7 @@ class _TopToastWidget extends StatelessWidget {
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
-                      message,
+                      widget.message,
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 14,
@@ -95,7 +117,7 @@ class _TopToastWidget extends StatelessWidget {
                     ),
                   ),
                   GestureDetector(
-                    onTap: onDismissed,
+                    onTap: widget.onDismissed,
                     child: const Icon(
                       Icons.close,
                       color: Colors.white70,
