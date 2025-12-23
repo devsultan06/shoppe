@@ -1,27 +1,45 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shoppe/widgets/top-toast.dart';
-import 'package:shoppe/auth/password_screen.dart';
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+class PasswordScreen extends StatefulWidget {
+  final String email;
+  final String profileImageUrl;
+
+  const PasswordScreen({
+    super.key,
+    required this.email,
+    this.profileImageUrl = '',
+  });
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  State<PasswordScreen> createState() => _PasswordScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
-  final _emailController = TextEditingController();
+class _PasswordScreenState extends State<PasswordScreen> {
+  final _passwordController = TextEditingController();
   bool _isLoading = false;
+  String _password = '';
+  List<bool> _filledCircles = List.filled(8, false);
 
   @override
   void dispose() {
-    _emailController.dispose();
+    _passwordController.dispose();
     super.dispose();
   }
 
-  // Method to handle login
-  void _handleLogin() async {
+  void _onPasswordChanged(String value) {
+    setState(() {
+      _password = value;
+      // Update filled circles based on password length
+      for (int i = 0; i < _filledCircles.length; i++) {
+        _filledCircles[i] = i < value.length;
+      }
+    });
+  }
+
+  // Method to handle password submission
+  void _handlePasswordSubmit() async {
     // Prevent multiple submissions
     if (_isLoading) return;
 
@@ -30,25 +48,37 @@ class _LoginScreenState extends State<LoginScreen> {
     });
 
     try {
-      // Get value from email controller
-      String email = _emailController.text.trim();
+      String password = _passwordController.text.trim();
 
       // Basic validation
-      if (email.isEmpty) {
+      if (password.isEmpty) {
         TopToast.show(
           context,
-          message: 'Please enter your email',
+          message: 'Please enter your password',
+          type: ToastType.error,
+        );
+        return;
+      }
+
+      if (password.length < 6) {
+        TopToast.show(
+          context,
+          message: 'Password must be at least 6 characters',
           type: ToastType.error,
         );
         return;
       }
 
       // Create login data object
-      Map<String, dynamic> loginData = {'email': email};
+      Map<String, dynamic> loginData = {
+        'email': widget.email,
+        'password': password,
+      };
 
       // Print the data (you can replace this with your API call)
-      print('Login Data to send to backend:');
-      print('Email: $email');
+      print('Complete Login Data to send to backend:');
+      print('Email: ${widget.email}');
+      print('Password: $password');
       print('Full object: $loginData');
 
       // Send to backend
@@ -81,22 +111,14 @@ class _LoginScreenState extends State<LoginScreen> {
       //   _showErrorMessage('Login failed');
       // }
 
-      // For now, just simulate email verification and navigate to password screen
+      // For now, just simulate success and navigate
       TopToast.show(
         context,
-        message: 'Email verified!',
+        message: 'Login successful!',
         type: ToastType.success,
       );
       Future.delayed(const Duration(seconds: 1), () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => PasswordScreen(
-              email: loginData['email'],
-              profileImageUrl: '', // You can pass actual profile image URL here
-            ),
-          ),
-        );
+        Navigator.pushNamed(context, '/home'); // Update with your actual route
       });
     } catch (e) {
       TopToast.show(
@@ -113,7 +135,7 @@ class _LoginScreenState extends State<LoginScreen> {
       backgroundColor: const Color(0xFFFFFFFF),
       body: Stack(
         children: [
-          // Background bubbles
+          // Background bubbles - same as login screen
           Positioned(
             top: -50,
             left: -50,
@@ -134,7 +156,6 @@ class _LoginScreenState extends State<LoginScreen> {
               fit: BoxFit.contain,
             ),
           ),
-
           Positioned(
             bottom: -100,
             right: -70,
@@ -161,80 +182,110 @@ class _LoginScreenState extends State<LoginScreen> {
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24.0),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  const Spacer(flex: 2),
+                  const Spacer(flex: 1),
 
-                  // Title
+                  // Profile picture
+                  Container(
+                    width: 120,
+                    height: 120,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.white, width: 4),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          blurRadius: 10,
+                          offset: const Offset(0, 5),
+                        ),
+                      ],
+                    ),
+                    child: ClipOval(
+                      child: widget.profileImageUrl.isNotEmpty
+                          ? Image.network(
+                              widget.profileImageUrl,
+                              width: 120,
+                              height: 120,
+                              fit: BoxFit.cover,
+                            )
+                          : Container(
+                              color: const Color(0xFFE8BBE8),
+                              child: const Center(
+                                child: Icon(
+                                  Icons.person,
+                                  size: 60,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 32),
+
+                  // Greeting
                   Text(
-                    'Login',
+                    'Hello, Romina!!',
                     style: GoogleFonts.raleway(
-                      fontSize: 52,
+                      fontSize: 32,
                       fontWeight: FontWeight.w700,
                       color: const Color(0xFF202020),
                       letterSpacing: -0.5,
                     ),
                   ),
 
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 24),
 
-                  // Subtitle with heart emoji
-                  Row(
-                    children: [
-                      Text(
-                        'Good to see you back!',
-                        style: GoogleFonts.raleway(
-                          fontSize: 19,
-                          color: const Color(0xFF202020),
-                          fontWeight: FontWeight.w400,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      const Text('🖤', style: TextStyle(fontSize: 16)),
-                    ],
-                  ),
-
-                  const SizedBox(height: 17),
-
-                  // Email field
-                  TextField(
-                    controller: _emailController,
+                  // Instruction text
+                  Text(
+                    'Type your password',
                     style: GoogleFonts.raleway(
-                      fontSize: 16,
+                      fontSize: 19,
                       color: const Color(0xFF202020),
+                      fontWeight: FontWeight.w400,
                     ),
-                    decoration: InputDecoration(
-                      hintText: 'Email',
-                      hintStyle: GoogleFonts.raleway(
-                        fontSize: 16,
-                        color: const Color(0xFFB0B0B0),
-                        fontWeight: FontWeight.w300,
-                      ),
-                      filled: true,
-                      fillColor: const Color(0xFFF8F8F8),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(59),
-                        borderSide: BorderSide.none,
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(59),
-                        borderSide: BorderSide.none,
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(59),
-                        borderSide: const BorderSide(
-                          color: Color(0xFF004CFF),
-                          width: 1,
+                  ),
+
+                  const SizedBox(height: 32),
+
+                  // Password circles
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: List.generate(8, (index) {
+                      return Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 6),
+                        width: 16,
+                        height: 16,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: _filledCircles[index]
+                              ? const Color(0xFF004CFF)
+                              : const Color(0xFFE5E5E5),
                         ),
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 16,
+                      );
+                    }),
+                  ),
+
+                  const SizedBox(height: 40),
+
+                  // Hidden password field
+                  Opacity(
+                    opacity: 0.0,
+                    child: TextField(
+                      controller: _passwordController,
+                      onChanged: _onPasswordChanged,
+                      obscureText: true,
+                      keyboardType: TextInputType.text,
+                      autofocus: true,
+                      style: const TextStyle(color: Colors.transparent),
+                      decoration: const InputDecoration(
+                        border: InputBorder.none,
                       ),
                     ),
                   ),
 
-                  const Spacer(),
+                  const Spacer(flex: 2),
                 ],
               ),
             ),
@@ -248,18 +299,18 @@ class _LoginScreenState extends State<LoginScreen> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // Next button
+                // Submit button
                 SizedBox(
                   width: double.infinity,
                   height: 61,
                   child: ElevatedButton(
-                    onPressed: _isLoading
+                    onPressed: _isLoading || _password.length < 6
                         ? null
                         : () {
-                            _handleLogin();
+                            _handlePasswordSubmit();
                           },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: _isLoading
+                      backgroundColor: _isLoading || _password.length < 6
                           ? const Color(0xFF9AA5B1)
                           : const Color(0xFF004CFF),
                       foregroundColor: Colors.white,
@@ -294,7 +345,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             ],
                           )
                         : Text(
-                            "Next",
+                            "Continue",
                             style: GoogleFonts.raleway(
                               fontSize: 18,
                               fontWeight: FontWeight.w300,
@@ -306,14 +357,14 @@ class _LoginScreenState extends State<LoginScreen> {
 
                 const SizedBox(height: 16),
 
-                // Cancel button
+                // Back button
                 Center(
                   child: TextButton(
                     onPressed: () {
                       Navigator.pop(context);
                     },
                     child: Text(
-                      'Cancel',
+                      'Back',
                       style: GoogleFonts.raleway(
                         fontSize: 16,
                         fontWeight: FontWeight.w300,

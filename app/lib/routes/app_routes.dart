@@ -11,6 +11,7 @@ class AppRoutes {
   static const String profile = '/profile';
   static const String onboarding = '/onboarding';
   static const String createAccount = '/create-account';
+  static const String password = '/password';
 
   static Map<String, WidgetBuilder> routes = {
     onboarding: (context) => const OnboardingScreen(),
@@ -18,5 +19,7 @@ class AppRoutes {
     login: (context) => const LoginScreen(),
     profile: (context) => const ProfileScreen(),
     createAccount: (context) => const CreateAccountScreen(),
+
+    // Note: PasswordScreen requires parameters, so it's navigated to directly
   };
 }
