@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:shoppe/widgets/my_button.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -15,17 +14,7 @@ class HomeScreen extends StatelessWidget {
       body: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text("Home Screen"),
-            const SizedBox(height: 16),
-            MyButton(
-              label: "Click Me",
-              color: Colors.green,
-              onPressed: () {
-                print("Button clicked!");
-              },
-            ),
-          ],
+          children: [const Text("Home Screen"), const SizedBox(height: 16)],
         ),
       ),
     );
