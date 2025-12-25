@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shoppe/home/home_screen.dart';
 import 'package:shoppe/auth/login_screen.dart';
 import 'package:shoppe/auth/create_account_screen.dart';
+import 'package:shoppe/auth/password_recovery_screen.dart';
 import 'package:shoppe/profile/profile_screen.dart';
 import 'package:shoppe/onboarding/onboarding_screen.dart';
 
@@ -11,6 +12,7 @@ class AppRoutes {
   static const String profile = '/profile';
   static const String onboarding = '/onboarding';
   static const String createAccount = '/create-account';
+  static const String passwordRecovery = '/password-recovery';
   static const String password = '/password';
 
   static Map<String, WidgetBuilder> routes = {
@@ -19,7 +21,7 @@ class AppRoutes {
     login: (context) => const LoginScreen(),
     profile: (context) => const ProfileScreen(),
     createAccount: (context) => const CreateAccountScreen(),
-
+    passwordRecovery: (context) => const PasswordRecoveryScreen(),
     // Note: PasswordScreen requires parameters, so it's navigated to directly
   };
 }

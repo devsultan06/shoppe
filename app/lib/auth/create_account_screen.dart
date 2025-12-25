@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:shoppe/widgets/top-toast.dart';
+import 'package:shoppe/auth/verify_screen.dart';
 
 class CreateAccountScreen extends StatefulWidget {
   const CreateAccountScreen({super.key});
@@ -193,12 +194,24 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
       //   _showErrorMessage('Registration failed');
       // }
 
-      // For now, just simulate success
+      // For now, just simulate success and navigate to verify screen
       TopToast.show(
         context,
-        message: 'Account created successfully',
+        message: 'Account created successfully! Please verify your email.',
         type: ToastType.success,
       );
+
+      Future.delayed(const Duration(seconds: 1), () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => VerifyScreen(
+              email: userData['email'],
+              profileImageUrl: '', // You can pass actual profile image URL here
+            ),
+          ),
+        );
+      });
     } catch (e) {
       TopToast.show(
         context,

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shoppe/widgets/top-toast.dart';
-import 'package:shoppe/auth/password_screen.dart';
+import 'package:shoppe/routes/app_routes.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -12,11 +12,13 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
   bool _isLoading = false;
 
   @override
   void dispose() {
     _emailController.dispose();
+    _passwordController.dispose();
     super.dispose();
   }
 
@@ -30,8 +32,9 @@ class _LoginScreenState extends State<LoginScreen> {
     });
 
     try {
-      // Get value from email controller
+      // Get values from controllers
       String email = _emailController.text.trim();
+      String password = _passwordController.text.trim();
 
       // Basic validation
       if (email.isEmpty) {
@@ -43,12 +46,31 @@ class _LoginScreenState extends State<LoginScreen> {
         return;
       }
 
+      if (password.isEmpty) {
+        TopToast.show(
+          context,
+          message: 'Please enter your password',
+          type: ToastType.error,
+        );
+        return;
+      }
+
+      if (password.length < 6) {
+        TopToast.show(
+          context,
+          message: 'Password must be at least 6 characters',
+          type: ToastType.error,
+        );
+        return;
+      }
+
       // Create login data object
-      Map<String, dynamic> loginData = {'email': email};
+      Map<String, dynamic> loginData = {'email': email, 'password': password};
 
       // Print the data (you can replace this with your API call)
       print('Login Data to send to backend:');
       print('Email: $email');
+      print('Password: $password');
       print('Full object: $loginData');
 
       // Send to backend
@@ -81,22 +103,14 @@ class _LoginScreenState extends State<LoginScreen> {
       //   _showErrorMessage('Login failed');
       // }
 
-      // For now, just simulate email verification and navigate to password screen
+      // For now, just simulate login success and navigate to home
       TopToast.show(
         context,
-        message: 'Email verified!',
+        message: 'Login successful!',
         type: ToastType.success,
       );
       Future.delayed(const Duration(seconds: 1), () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => PasswordScreen(
-              email: loginData['email'],
-              profileImageUrl: '', // You can pass actual profile image URL here
-            ),
-          ),
-        );
+        Navigator.pushNamed(context, '/home'); // Update with your actual route
       });
     } catch (e) {
       TopToast.show(
@@ -230,6 +244,70 @@ class _LoginScreenState extends State<LoginScreen> {
                       contentPadding: const EdgeInsets.symmetric(
                         horizontal: 20,
                         vertical: 16,
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  // Password field
+                  TextField(
+                    controller: _passwordController,
+                    obscureText: true,
+                    style: GoogleFonts.raleway(
+                      fontSize: 16,
+                      color: const Color(0xFF202020),
+                    ),
+                    decoration: InputDecoration(
+                      hintText: 'Password',
+                      hintStyle: GoogleFonts.raleway(
+                        fontSize: 16,
+                        color: const Color(0xFFB0B0B0),
+                        fontWeight: FontWeight.w300,
+                      ),
+                      filled: true,
+                      fillColor: const Color(0xFFF8F8F8),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(59),
+                        borderSide: BorderSide.none,
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(59),
+                        borderSide: BorderSide.none,
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(59),
+                        borderSide: const BorderSide(
+                          color: Color(0xFF004CFF),
+                          width: 1,
+                        ),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 16,
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 12),
+
+                  // Forgot Password link
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: TextButton(
+                      onPressed: () {
+                        Navigator.pushNamed(
+                          context,
+                          AppRoutes.passwordRecovery,
+                        );
+                      },
+                      child: Text(
+                        'Forgot Password?',
+                        style: GoogleFonts.raleway(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w400,
+                          color: const Color(0xFF004CFF),
+                        ),
                       ),
                     ),
                   ),
