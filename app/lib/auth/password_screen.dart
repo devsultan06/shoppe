@@ -156,26 +156,6 @@ class _PasswordScreenState extends State<PasswordScreen> {
               fit: BoxFit.contain,
             ),
           ),
-          Positioned(
-            bottom: -100,
-            right: -70,
-            child: Image.asset(
-              'assets/images/l3.png',
-              width: 373,
-              height: 442,
-              fit: BoxFit.contain,
-            ),
-          ),
-          Positioned(
-            top: 250,
-            right: -30,
-            child: Image.asset(
-              'assets/images/l4.png',
-              width: 137,
-              height: 151,
-              fit: BoxFit.contain,
-            ),
-          ),
 
           // Main content
           SafeArea(
